@@ -85,6 +85,12 @@ app.post('/wish-create', async (req, res) => {
     res.status(500).send({ error: 'Internal server error' });
   }
 });
+
+app.get("/view/:id", async (req, res) => {
+  const result = await blogCollection.findOne({ _id: new ObjectId(req.params.id) });
+  console.log(result)
+  res.send(result)
+})
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
