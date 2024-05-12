@@ -46,7 +46,24 @@ async function run() {
       res.send(result)
     })
 
- // Backend routes
+    app.get('/blogs/:id', async (req, res) => {
+      const blogId = req.params.id;
+      try {
+          const result = await blogCollection.findOne({ _id:new ObjectId(blogId) });
+          res.send(result);
+      } catch (error) {
+          console.error('Error finding blog:', error);
+          res.status(500).send({ error: 'Internal server error' });
+      }
+  });
+  
+  
+    app.get("/wish/:id", async(req, res) =>{
+      console.log(req.params._id);
+      const result =await wishCollection.find({email:req.params._id}).toArray();
+      res.send(result)
+    })
+
 app.get('/wish-find/:id', async (req, res) => {
   const userId = req.params.id;
   try {
