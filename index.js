@@ -28,8 +28,16 @@ const client = new MongoClient(uri, {
 });
 async function run() {
   try {
+
     const blogCollection = client.db('blog').collection('blogs')
-    // const bidsCollection = client.db('soloSphere').collection('bids')
+    const wishCollection = client.db('blog').collection('wish')
+
+
+     //   Get all jobs data from db
+     app.get('/blogs', async(req, res)=>{
+      const result = await blogCollection.find().toArray()
+      res.send(result)
+  })
 
     // save a job data in db
     app.post('/blog', async (req, res) => {
@@ -38,8 +46,28 @@ async function run() {
       res.send(result)
     })
 
+ // Backend routes
+app.get('/wish-find/:id', async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const result = await wishCollection.find({ user_id: userId }).toArray();
+    res.send(result);
+  } catch (error) {
+    console.error('Error finding wishes:', error);
+    res.status(500).send({ error: 'Internal server error' });
+  }
+});
 
-
+app.post('/wish-create', async (req, res) => {
+  try {
+    const wishData = req.body;
+    const result = await wishCollection.insertOne(wishData);
+    res.send(result);
+  } catch (error) {
+    console.error('Error creating wish:', error);
+    res.status(500).send({ error: 'Internal server error' });
+  }
+});
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -52,7 +80,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-  res.send('ruuning soloSphere Server')
+  res.send('ruuning BlogSphere')
 })
 
 app.listen(port, () => console.log(`Server running on port ${port}`))
