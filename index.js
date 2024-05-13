@@ -93,13 +93,27 @@ app.get("/view/:id", async (req, res) => {
 
    //   Get all blogs data from db
    app.get('/all-blogs', async(req, res)=>{
-    const result = await blogCollection.find().toArray()
+    const size = parseInt(req.query.size)
+    const page  = parseInt(req.query.page) - 1
+    const filter = req.query.filter
+    const search = req.query.search  // Initialize as empty string if not provided
+    let query = {
+      
+blog_title: {$regex : search, $options: 'i'},
+    } 
+    if(filter) query.category = filter
+    const result = await blogCollection.find(query).skip(page * size).limit(size).toArray()
+   
     res.send(result)
-})
+  })
+  
 
    //   Get all blogs data from db for pagination
    app.get('/blogs-count', async(req, res)=>{
-    const count = await blogCollection.countDocuments()
+    const filter = req.query.filter
+    let query = {} 
+    if(filter) query = {category: filter}
+    const count = await blogCollection.countDocuments(query)
     res.send({count})
 })
 
