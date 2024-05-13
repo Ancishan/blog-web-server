@@ -164,6 +164,13 @@ async function run() {
       const count = await blogCollection.countDocuments(query)
       res.send({ count })
     })
+        // delete a signle job data from using job id
+        app.delete('/wishes/:id', async(req, res) =>{
+          const id = req.params.id
+          const query = {_id: new ObjectId(id)}
+          const result = await wishCollection.deleteOne(query)
+          res.send(result)
+        })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
