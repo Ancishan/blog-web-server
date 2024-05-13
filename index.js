@@ -33,7 +33,7 @@ async function run() {
     const wishCollection = client.db('blog').collection('wish')
 
 
-     //   Get all jobs data from db
+     //   Get all blogs data from db
      app.get('/blogs', async(req, res)=>{
       const result = await blogCollection.find().toArray()
       res.send(result)
@@ -90,6 +90,19 @@ app.get("/view/:id", async (req, res) => {
   console.log(result)
   res.send(result)
 })
+
+   //   Get all blogs data from db
+   app.get('/all-blogs', async(req, res)=>{
+    const result = await blogCollection.find().toArray()
+    res.send(result)
+})
+
+   //   Get all blogs data from db for pagination
+   app.get('/blogs-count', async(req, res)=>{
+    const count = await blogCollection.countDocuments()
+    res.send({count})
+})
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
