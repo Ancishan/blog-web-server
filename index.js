@@ -191,17 +191,7 @@ async function run() {
       res.send(result)
     })
 
-    // Example using Express.js
-    app.get('/all-blogs', async (req, res) => {
-      try {
-        const blogs = await Blog.find().populate('author', 'displayName photoURL');
-        res.json(blogs);
-      } catch (error) {
-        console.error('Error fetching blogs:', error);
-        res.status(500).json({ error: 'An error occurred while fetching blogs' });
-      }
-    });
-
+  
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
