@@ -139,22 +139,41 @@ async function run() {
       res.send(result)
     })
 
-    //   Get all blogs data from db
     app.get('/all-blogs', async (req, res) => {
-      const size = parseInt(req.query.size)
-      const page = parseInt(req.query.page) - 1
-      const filter = req.query.filter
-      const search = req.query.search  // Initialize as empty string if not provided
-      let query = {
+      const size = parseInt(req.query.size);
+      const page = parseInt(req.query.page) - 1;
+      const filter = req.query.filter;
+      const sort = req.query.sort;
+      const search = req.query.search || ''; // Initialize as empty string if not provided
+      let query = {};
 
-        blog_title: { $regex: search, $options: 'i' },
+      if (search) {
+        query.blog_title = { $regex: search, $options: 'i' };
       }
-      if (filter) query.category = filter
-      const result = await blogCollection.find(query).skip(page * size).limit(size).toArray()
 
-      res.send(result)
-    })
+      if (filter) {
+        query.category = filter;
+      }
 
+      let options = {};
+
+      if (sort) {
+        options.sort = { deadline: sort === 'asc' ? 1 : -1 };
+      }
+
+      try {
+        const result = await blogCollection
+          .find(query, options)
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+
+        res.send(result);
+      } catch (error) {
+        console.error('Error fetching blogs:', error);
+        res.status(500).send('Internal Server Error');
+      }
+    });
 
     //   Get all blogs data from db for pagination
     app.get('/blogs-count', async (req, res) => {
@@ -164,13 +183,25 @@ async function run() {
       const count = await blogCollection.countDocuments(query)
       res.send({ count })
     })
-        // delete a signle job data from using job id
-        app.delete('/wishes/:id', async(req, res) =>{
-          const id = req.params.id
-          const query = {_id: new ObjectId(id)}
-          const result = await wishCollection.deleteOne(query)
-          res.send(result)
-        })
+    // delete a signle job data from using job id
+    app.delete('/wishes/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await wishCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    // Example using Express.js
+    app.get('/all-blogs', async (req, res) => {
+      try {
+        const blogs = await Blog.find().populate('author', 'displayName photoURL');
+        res.json(blogs);
+      } catch (error) {
+        console.error('Error fetching blogs:', error);
+        res.status(500).json({ error: 'An error occurred while fetching blogs' });
+      }
+    });
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
